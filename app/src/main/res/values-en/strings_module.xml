@@ -735,18 +735,26 @@
     <!-- vflow.trigger.notification -->
     <string name="module_vflow_trigger_notification_name">Notification Trigger</string>
     <string name="module_vflow_trigger_notification_desc">Trigger workflow when notification matching criteria is received</string>
-    <string name="param_vflow_trigger_notification_app_filter_name">Package Name</string>
-    <string name="param_vflow_trigger_notification_title_filter_name">Title Contains</string>
-    <string name="param_vflow_trigger_notification_content_filter_name">Content Contains</string>
+    <string name="param_vflow_trigger_notification_app_filter_type_name">App Filter Mode</string>
+    <string name="param_vflow_trigger_notification_app_filter_name">Apps</string>
+    <string name="param_vflow_trigger_notification_title_filter_type_name">Title Filter Mode</string>
+    <string name="param_vflow_trigger_notification_title_filter_name">Title</string>
+    <string name="param_vflow_trigger_notification_content_filter_type_name">Content Filter Mode</string>
+    <string name="param_vflow_trigger_notification_content_filter_name">Content</string>
+    <string name="option_vflow_trigger_notification_include">Include</string>
+    <string name="option_vflow_trigger_notification_exclude">Exclude</string>
     <string name="output_vflow_trigger_notification_notification_object_name">Notification Object</string>
     <string name="output_vflow_trigger_notification_package_name_name">Package Name</string>
     <string name="output_vflow_trigger_notification_title_name">Notification Title</string>
     <string name="output_vflow_trigger_notification_content_name">Notification Content</string>
     <string name="summary_vflow_trigger_notification_prefix">When receiving</string>
-    <string name="summary_vflow_trigger_notification_from"> from </string>
+    <string name="summary_vflow_trigger_notification_app_contains"> from </string>
+    <string name="summary_vflow_trigger_notification_app_not_contains"> not from </string>
     <string name="summary_vflow_trigger_notification_and"> and</string>
     <string name="summary_vflow_trigger_notification_title_contains"> title contains </string>
+    <string name="summary_vflow_trigger_notification_title_not_contains"> title does not contain </string>
     <string name="summary_vflow_trigger_notification_content_contains"> content contains </string>
+    <string name="summary_vflow_trigger_notification_content_not_contains"> content does not contain </string>
     <string name="summary_vflow_trigger_notification_any">any</string>
     <string name="summary_vflow_trigger_notification_suffix"> notification</string>
     <string name="msg_vflow_trigger_notification_received">Notification received</string>
@@ -1498,6 +1506,9 @@
     <string name="module_vflow_interaction_ocr_name">OCR</string>
     <string name="module_vflow_interaction_ocr_desc">Recognize text in image, or find coordinates of specified text</string>
     <string name="param_vflow_interaction_ocr_image_name">Input Image</string>
+    <string name="param_vflow_interaction_ocr_engine_name">Recognition Engine</string>
+    <string name="param_vflow_interaction_ocr_engine_opt_ml_kit">ML Kit</string>
+    <string name="param_vflow_interaction_ocr_engine_opt_pp_ocr_v5">PP-OCRv5</string>
     <string name="param_vflow_interaction_ocr_mode_name">Mode</string>
     <string name="param_vflow_interaction_ocr_mode_opt_recognize">Recognize Full Text</string>
     <string name="param_vflow_interaction_ocr_mode_opt_find">Find Text</string>
@@ -1569,6 +1580,7 @@
     <string name="output_vflow_interaction_ui_selector_count_name">Match Count</string>
     <string name="output_vflow_interaction_ui_selector_element_name">Selected Element</string>
     <string name="output_vflow_interaction_ui_selector_all_elements_name">All Elements</string>
+    <string name="output_vflow_interaction_ui_selector_all_text_name">All Text</string>
     <string name="summary_vflow_interaction_ui_selector_prefix">Find using selector</string>
     <string name="option_vflow_interaction_ui_selector_result_first">First</string>
     <string name="option_vflow_interaction_ui_selector_result_last">Last</string>
@@ -1893,9 +1905,22 @@
     <string name="module_vflow_logic_while_end_desc">End point of While loop block</string>
     <string name="module_vflow_logic_while_end_name">End Loop</string>
 
+    <!-- vflow.logic.do_while_start -->
+    <string name="module_vflow_logic_do_while_start_desc">Execute loop body first, then check condition to continue</string>
+    <string name="module_vflow_logic_do_while_start_name">Loop Until</string>
+
+    <!-- vflow.logic.do_while_end -->
+    <string name="module_vflow_logic_do_while_end_desc">End point of Loop Until block, evaluates condition to continue loop</string>
+    <string name="module_vflow_logic_do_while_end_name">End Loop</string>
+    <string name="param_vflow_logic_do_while_end_input1_name">Input</string>
+    <string name="param_vflow_logic_do_while_end_operator_name">Condition</string>
+    <string name="param_vflow_logic_do_while_end_value1_name">Compare Value 1</string>
+    <string name="param_vflow_logic_do_while_end_value2_name">Compare Value 2</string>
+    <string name="output_vflow_logic_do_while_end_result_name">Condition Result</string>
+
     <!-- vflow.logic.while_start -->
-    <string name="module_vflow_logic_while_start_desc">Repeat while condition is true until condition is not met</string>
-    <string name="module_vflow_logic_while_start_name">Loop Until</string>
+    <string name="module_vflow_logic_while_start_desc">Repeat the loop body while the condition is met</string>
+    <string name="module_vflow_logic_while_start_name">Conditional Loop</string>
     <string name="param_vflow_logic_while_start_input1_name">Input</string>
     <string name="param_vflow_logic_while_start_operator_name">Condition</string>
     <string name="param_vflow_logic_while_start_value1_name">Compare Value 1</string>
@@ -2932,8 +2957,11 @@
     <string name="summary_vflow_logic_loop_prefix">Loop</string>
     <string name="summary_vflow_logic_loop_suffix">times</string>
     <string name="summary_vflow_logic_stop_and_return_prefix">Return</string>
-    <string name="summary_vflow_logic_while_prefix">Loop until</string>
-    <string name="summary_vflow_logic_while_suffix">is false</string>
+    <string name="summary_vflow_logic_while_prefix">If</string>
+    <string name="summary_vflow_logic_while_suffix">then loop</string>
+    <string name="summary_vflow_logic_do_while_start">Start Loop</string>
+    <string name="summary_vflow_logic_do_while_prefix">Until</string>
+    <string name="summary_vflow_logic_do_while_suffix">is false</string>
     <string name="summary_vflow_logic_loop_between">between</string>
     <string name="summary_vflow_logic_loop_between_suffix">and</string>
     <string name="button_edit_gkd_rules">Edit rule file</string>
