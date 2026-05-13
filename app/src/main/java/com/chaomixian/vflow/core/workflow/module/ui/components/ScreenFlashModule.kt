@@ -25,7 +25,7 @@ class ScreenFlashModule : BaseModule() {
         descriptionStringRes = R.string.module_vflow_ui_screen_flash_desc,
         name = "屏幕闪烁",
         description = "在屏幕上显示一个全屏颜色闪烁效果，用于视觉提示。",
-        iconRes = R.drawable.rounded_brightness_5_24,
+        iconRes = R.drawable.ic_screen_flash_24,
         category = "UI 组件",
         categoryId = "ui"
     )
