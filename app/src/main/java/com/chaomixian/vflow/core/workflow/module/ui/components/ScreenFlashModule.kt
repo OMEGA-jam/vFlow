@@ -39,7 +39,7 @@ class ScreenFlashModule : BaseModule() {
             id = "color",
             name = "颜色",
             staticType = ParameterType.STRING,
-            defaultValue = "#FF0000",
+            defaultValue = "#FFFF0000",
             acceptsMagicVariable = true,
             acceptsNamedVariable = true,
             acceptedMagicVariableTypes = setOf(VTypeRegistry.STRING.id),

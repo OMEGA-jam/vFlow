@@ -41,7 +41,7 @@ class ScreenFlashUIProvider : ModuleUIProvider {
         val pickButton = view.findViewById<MaterialButton>(R.id.button_pick_color)
 
         val holder = ScreenFlashViewHolder(view, colorPreview, colorHexText, pickButton)
-        holder.currentColorHex = currentParameters["color"] as? String ?: "#FF0000"
+        holder.currentColorHex = currentParameters["color"] as? String ?: "#FFFF0000"
 
         fun updatePreview() {
             val colorInt = try {
@@ -304,11 +304,7 @@ class ScreenFlashUIProvider : ModuleUIProvider {
         val r = Color.red(colorInt)
         val g = Color.green(colorInt)
         val b = Color.blue(colorInt)
-        return if (a < 255) {
-            "#%02X%02X%02X%02X".format(a, r, g, b)
-        } else {
-            "#%02X%02X%02X".format(r, g, b)
-        }
+        return "#%02X%02X%02X%02X".format(a, r, g, b)
     }
 
     // ==================== ViewHolder ====================

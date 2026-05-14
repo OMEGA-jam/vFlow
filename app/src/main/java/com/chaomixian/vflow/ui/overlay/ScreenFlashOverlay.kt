@@ -25,8 +25,8 @@ class ScreenFlashOverlay(private val context: Context) {
 
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private var overlayRoot: FrameLayout? = null
-    private var currentAnimator: ValueAnimator? = null
     private var pendingRunnable: Runnable? = null
+    private var isDismissing = false
 
     /**
      * 显示闪烁覆盖层并等待动画完成。
@@ -89,7 +89,6 @@ class ScreenFlashOverlay(private val context: Context) {
             // 取消时清理
             continuation.invokeOnCancellation {
                 pendingRunnable?.let { overlay.removeCallbacks(it) }
-                currentAnimator?.cancel()
                 dismiss()
             }
 
@@ -103,11 +102,6 @@ class ScreenFlashOverlay(private val context: Context) {
 
     /**
      * 递归执行闪烁循环。
-     * @param overlay 覆盖层 View
-     * @param targetAlpha 目标 alpha（从颜色值提取）
-     * @param currentCycle 当前循环索引（从 0 开始）
-     * @param totalCycles 总循环次数
-     * @param onComplete 全部完成后的回调
      */
     private fun runFlashCycle(
         overlay: FrameLayout,
@@ -125,14 +119,13 @@ class ScreenFlashOverlay(private val context: Context) {
             return
         }
 
-        // 淡入
+        // 每个循环新建 fadeIn 和 fadeOut，避免 listener 累积
         val fadeIn = ValueAnimator.ofFloat(0f, targetAlpha).apply {
             duration = fadeInMs
             interpolator = DecelerateInterpolator()
             addUpdateListener { overlay.alpha = it.animatedValue as Float }
         }
 
-        // 淡出
         val fadeOut = ValueAnimator.ofFloat(targetAlpha, 0f).apply {
             duration = fadeOutMs
             interpolator = AccelerateInterpolator()
@@ -141,11 +134,13 @@ class ScreenFlashOverlay(private val context: Context) {
 
         fadeIn.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
-                // 淡入结束 → 持续
+                // 淡入结束 → 持续 → 淡出
                 pendingRunnable = Runnable {
-                    currentAnimator = fadeOut
                     fadeOut.addListener(object : AnimatorListenerAdapter() {
                         override fun onAnimationEnd(animation: Animator) {
+                            // 确保 alpha 归零，移除背景防止闪现
+                            overlay.alpha = 0f
+                            overlay.background = null
                             // 淡出结束 → 间隔 → 下一次循环
                             if (intervalMs > 0 && currentCycle + 1 < totalCycles) {
                                 pendingRunnable = Runnable {
@@ -169,19 +164,20 @@ class ScreenFlashOverlay(private val context: Context) {
             }
         })
 
-        currentAnimator = fadeIn
         fadeIn.start()
     }
 
     private fun dismiss() {
+        if (isDismissing) return
+        isDismissing = true
         try {
             pendingRunnable?.let { overlayRoot?.removeCallbacks(it) }
-            currentAnimator?.cancel()
+            overlayRoot?.alpha = 0f
+            overlayRoot?.background = null
             overlayRoot?.let { windowManager.removeView(it) }
         } catch (_: Exception) {
         } finally {
             overlayRoot = null
-            currentAnimator = null
             pendingRunnable = null
         }
     }

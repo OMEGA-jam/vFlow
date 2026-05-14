@@ -2,6 +2,8 @@
 package com.chaomixian.vflow.core.workflow.module.core
 
 import android.content.Context
+import android.util.TypedValue
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -189,32 +191,44 @@ class CoreVolumeModuleUIProvider : ModuleUIProvider {
             val rawValue = currentParameters[paramValueId]?.toString()
             val isVariable = rawValue.isMagicVariable() || rawValue.isNamedVariable()
 
-            // 重建滑块容器内容：魔法变量按钮 + 滑块或药丸
+            // 重建滑块容器：水平布局 [valueArea(weight=1)] [magicButton(右侧)]
             val container = config.sliderContainer as LinearLayout
             container.removeAllViews()
+            container.orientation = LinearLayout.HORIZONTAL
+            container.gravity = Gravity.CENTER_VERTICAL
 
-            // 魔法变量按钮（如果输入支持）
+            // valueArea：左侧，占据剩余空间
+            val valueArea = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            }
+            container.addView(valueArea)
+
+            // 魔法变量按钮：右侧，固定宽度，样式与标准编辑器一致
             if (inputDef?.acceptsMagicVariable == true) {
                 val magicBtn = ImageButton(context).apply {
                     setImageResource(R.drawable.rounded_dataset_24)
-                    setBackgroundResource(android.R.drawable.btn_default)
+                    val tv = TypedValue()
+                    context.theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, tv, true)
+                    setBackgroundResource(tv.resourceId)
+                    setColorFilter(com.google.android.material.color.MaterialColors.getColor(this, android.R.attr.colorPrimary))
                     layoutParams = LinearLayout.LayoutParams(
-                        (32 * dp).toInt(), (32 * dp).toInt()
-                    ).apply { bottomMargin = (4 * dp).toInt() }
+                        (48 * dp).toInt(), (48 * dp).toInt()
+                    )
                     setOnClickListener { onMagicVariableRequested?.invoke(paramValueId) }
                 }
                 container.addView(magicBtn)
             }
 
             if (isVariable) {
-                // 药丸模式：显示变量名称
-                val pill = LayoutInflater.from(context).inflate(R.layout.magic_variable_pill, container, false)
+                // 变量模式：药丸显示变量名称，点击可重新选择
+                val pill = LayoutInflater.from(context).inflate(R.layout.magic_variable_pill, valueArea, false)
                 val displayName = PillRenderer.resolveDisplayName(context, rawValue!!, allSteps ?: emptyList())
                 pill.findViewById<TextView>(R.id.pill_text).text = displayName
                 pill.setOnClickListener { onMagicVariableRequested?.invoke(paramValueId) }
-                container.addView(pill)
+                valueArea.addView(pill)
             } else {
-                // 滑块模式
+                // 静态模式：Slider + 数值标签
                 val slider = Slider(context).apply {
                     valueFrom = 0f; valueTo = 100f; stepSize = 1f
                     value = ((currentParameters[paramValueId] as? Number)?.toInt() ?: 50).toFloat()
@@ -229,10 +243,10 @@ class CoreVolumeModuleUIProvider : ModuleUIProvider {
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT
-                    ).apply { gravity = android.view.Gravity.CENTER }
+                    ).apply { gravity = Gravity.CENTER }
                 }
-                container.addView(slider)
-                container.addView(valueLabel)
+                valueArea.addView(slider)
+                valueArea.addView(valueLabel)
 
                 slider.addOnChangeListener { _, value, _ ->
                     valueLabel.text = value.toInt().toString()
@@ -315,14 +329,19 @@ class CoreVolumeModuleUIProvider : ModuleUIProvider {
 
             params[actionParamId] = action
 
-            // 根据滑块容器内容读取值
+            // 根据 valueArea 内容读取值
             val container = config.sliderContainer as LinearLayout
-            // 子 View 结构: [magicButton, Slider+valueLabel] 或 [magicButton, pill]
-            val valueChild = if (container.childCount > 1) container.getChildAt(1) else null
-            if (valueChild is Slider) {
-                params[valueParamId] = valueChild.value.toInt()
+            // 子 View 结构: [valueArea, magicButton] — valueArea 是第一个子 View
+            val valueArea = container.getChildAt(0) as? LinearLayout
+            val firstChild = valueArea?.getChildAt(0)
+            when (firstChild) {
+                is Slider -> params[valueParamId] = firstChild.value.toInt()
+                is LinearLayout -> {
+                    // 药丸模式：保持原始变量引用
+                    val original = h.currentParameters[valueParamId]
+                    if (original != null) params[valueParamId] = original
+                }
             }
-            // 如果是药丸，不设置值（保持原魔法变量引用）
         }
 
         return params
