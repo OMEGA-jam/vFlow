@@ -138,9 +138,8 @@ class ScreenFlashOverlay(private val context: Context) {
                 pendingRunnable = Runnable {
                     fadeOut.addListener(object : AnimatorListenerAdapter() {
                         override fun onAnimationEnd(animation: Animator) {
-                            // 确保 alpha 归零，移除背景防止闪现
+                            // 确保 alpha 归零；背景保留到全部循环结束，否则后续循环没有可见内容。
                             overlay.alpha = 0f
-                            overlay.background = null
                             // 淡出结束 → 间隔 → 下一次循环
                             if (intervalMs > 0 && currentCycle + 1 < totalCycles) {
                                 pendingRunnable = Runnable {
@@ -173,6 +172,7 @@ class ScreenFlashOverlay(private val context: Context) {
         try {
             pendingRunnable?.let { overlayRoot?.removeCallbacks(it) }
             overlayRoot?.alpha = 0f
+            // 直到最终销毁时再移除背景，避免多次闪烁时后续循环不可见。
             overlayRoot?.background = null
             overlayRoot?.let { windowManager.removeView(it) }
         } catch (_: Exception) {
